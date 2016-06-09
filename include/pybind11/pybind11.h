@@ -583,6 +583,9 @@ protected:
         /* Support weak references (needed for the keep_alive feature) */
         type->ht_type.tp_weaklistoffset = offsetof(instance_essentials<void>, weakrefs);
 
+        /* Support __dict__ attribute to add instance attributes */
+        type->ht_type.tp_dictoffset = offsetof(instance_essentials<void>, dict);
+
         /* Flags */
         type->ht_type.tp_flags |= Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HEAPTYPE;
 #if PY_MAJOR_VERSION < 3
