@@ -244,6 +244,28 @@ template <typename type> struct instance_essentials {
     bool constructed : 1;
 };
 
+static PyObject* instance_get_dict(PyObject* op, void*) {
+  instance_essentials<void>* inst = reinterpret_cast<instance_essentials<void>* >(op);
+  if (inst->dict == 0)
+    inst->dict = PyDict_New();
+  Py_XINCREF(inst->dict);
+  return inst->dict;
+}
+
+static int instance_set_dict(PyObject* op, PyObject* dict, void*) {
+  instance_essentials<void>* inst = reinterpret_cast<instance_essentials<void>* >(op);
+  Py_XDECREF(inst->dict);
+  Py_XINCREF(dict);
+  inst->dict = dict;
+  return 0;
+}
+
+static PyGetSetDef instance_getsets[] = {
+      {const_cast<char*>("__dict__"),  instance_get_dict,  instance_set_dict, NULL, 0},
+      {0, 0, 0, 0, 0}
+};
+
+
 /// PyObject wrapper around generic types, includes a special holder type that is responsible for lifetime management
 template <typename type, typename holder_type = std::unique_ptr<type>> struct instance : instance_essentials<type> {
     holder_type holder;
